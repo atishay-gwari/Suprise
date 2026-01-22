@@ -4,6 +4,7 @@ FROM nginx:alpine
 COPY index.html /usr/share/nginx/html/
 COPY game3d.js /usr/share/nginx/html/
 COPY styles.css /usr/share/nginx/html/
+COPY photos/ /usr/share/nginx/html/photos/
 
 # Expose port 80
 EXPOSE 80

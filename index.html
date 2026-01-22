@@ -122,10 +122,9 @@
             box-shadow: 0 5px 20px rgba(255, 215, 0, 0.4);
         }
         
-        #music-btn {
+        #music-btn, #restart-btn, #welcome-btn {
             position: absolute;
             bottom: 20px;
-            right: 20px;
             background: rgba(0, 0, 0, 0.7);
             color: #ffd700;
             border: 2px solid #ffd700;
@@ -138,13 +137,213 @@
             font-family: Georgia, serif;
         }
         
-        #music-btn:hover {
+        #music-btn { right: 20px; }
+        #restart-btn { right: 180px; }
+        #welcome-btn { right: 340px; }
+        
+        #music-btn:hover, #restart-btn:hover, #welcome-btn:hover {
             background: rgba(255, 215, 0, 0.2);
             transform: scale(1.05);
         }
-</style>
+        
+        /* Welcome Screen */
+        #welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            flex-direction: column;
+        }
+        
+        #welcome-screen.hidden { display: none; }
+        
+        #welcome-stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .welcome-star {
+            position: absolute;
+            background: #fff;
+            border-radius: 50%;
+            animation: twinkle 2s ease-in-out infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        #welcome-content {
+            text-align: center;
+            z-index: 10;
+            padding: 40px;
+        }
+        
+        #welcome-content h1 {
+            font-size: 48px;
+            color: #ffd700;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        #welcome-content p {
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        #welcome-content .love-msg {
+            font-size: 28px;
+            color: #ff6b9d;
+            margin: 30px 0;
+            font-style: italic;
+        }
+        
+        #start-btn {
+            padding: 20px 50px;
+            font-size: 24px;
+            background: linear-gradient(180deg, #ff6b9d 0%, #c44569 100%);
+            border: none;
+            border-radius: 30px;
+            color: #fff;
+            cursor: pointer;
+            font-family: Georgia, serif;
+            margin-top: 30px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 30px rgba(255, 107, 157, 0.4);
+        }
+        
+        #start-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 40px rgba(255, 107, 157, 0.6);
+        }
+        
+        /* Photo Gallery */
+        #photo-gallery {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2500;
+            flex-direction: column;
+        }
+        
+        #gallery-stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .gallery-sparkle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ffd700;
+            border-radius: 50%;
+            animation: sparkle 1.5s ease-in-out infinite;
+            box-shadow: 0 0 10px #ffd700;
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+        
+        #photo-container {
+            text-align: center;
+            z-index: 10;
+            max-width: 90%;
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        #photo-container img {
+            max-width: 500px;
+            max-height: 400px;
+            border-radius: 15px;
+            border: 4px solid #ffd700;
+            box-shadow: 0 10px 50px rgba(255, 215, 0, 0.3);
+            margin-bottom: 30px;
+        }
+        
+        #photo-text {
+            font-size: 22px;
+            color: #fff;
+            line-height: 1.8;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        #next-photo-btn {
+            padding: 15px 40px;
+            font-size: 18px;
+            background: linear-gradient(180deg, #ffd700 0%, #daa520 100%);
+            border: none;
+            border-radius: 25px;
+            color: #1a1a2e;
+            cursor: pointer;
+            font-family: Georgia, serif;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        #next-photo-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
+    <!-- Welcome Screen -->
+    <div id="welcome-screen">
+        <div id="welcome-stars"></div>
+        <div id="welcome-content">
+            <h1>🏰 Leps' Chronicles of WonderCore 🏰</h1>
+            <p>A magical adventure made just for you...</p>
+            <p class="love-msg">I'd love to see you play this 💜</p>
+            <p class="love-msg">Remember, I love you! 💕</p>
+            <button id="start-btn">✨ Begin Adventure ✨</button>
+        </div>
+    </div>
+    
+    <!-- Photo Gallery -->
+    <div id="photo-gallery">
+        <div id="gallery-stars"></div>
+        <div id="photo-container">
+            <img id="gallery-photo" src="" alt="Our Memory">
+            <p id="photo-text"></p>
+            <button id="next-photo-btn">Next 💕</button>
+        </div>
+    </div>
+    
     <div id="game-container">
         <div id="ui-overlay">
             <div id="scene-title">The Lantern Waste</div>
@@ -157,6 +356,8 @@
                 <button id="dialogue-btn">Continue</button>
             </div>
             
+            <button id="welcome-btn">� Messarge</button>
+            <button id="restart-btn">🔄 Restart</button>
             <button id="music-btn">🎵 Play Music</button>
         </div>
     </div>

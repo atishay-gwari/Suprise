@@ -164,8 +164,8 @@ function loadScene1() {
     scene.add(ground);
     sceneObjects.objects.push(ground);
     
-    // Create wardrobe
-    createWardrobe(-6, 0, 2);
+    // Create wardrobe (moved to back right so it doesn't block view)
+    createWardrobe(6, 0, 6);
     
     // Create chest with scarf on starting platform
     createChest(3, 0, 2);
@@ -181,6 +181,15 @@ function loadScene1() {
     createPlatform(4, 3.5, -8, 2, 0.5, 2, 0xb3e5fc);
     // Platform 5 - Knight's platform
     createPlatform(8, 4, -8, 4, 0.5, 4, 0xe8eaf6);
+    
+    // === EASY PARKOUR PATH TO HAT (Left side) ===
+    createPlatform(-3, 0.3, 0, 2.5, 0.4, 2.5, 0xffcdd2);  // Pink platform 1
+    createPlatform(-6, 0.6, -2, 2.5, 0.4, 2.5, 0xf8bbd9); // Pink platform 2
+    createPlatform(-9, 0.9, -1, 2.5, 0.4, 2.5, 0xe1bee7); // Purple platform 3
+    createPlatform(-12, 1.2, -3, 3, 0.5, 3, 0xd1c4e9);    // Hat platform
+    
+    // Create the special hat!
+    createHat(-12, 1.5, -3);
     
     // Create lamp posts
     createLampPost(-4, 0, 0);
@@ -353,6 +362,55 @@ function createChest(x, y, z) {
     chest.position.set(x, y, z);
     scene.add(chest);
     sceneObjects.npcs.push(chest);
+}
+
+// Special Hat with memories!
+function createHat(x, y, z) {
+    const hat = new THREE.Group();
+    hat.userData = { type: 'memoryHat' };
+    
+    // Hat brim
+    const brimGeo = new THREE.CylinderGeometry(0.6, 0.6, 0.08, 16);
+    const hatMat = new THREE.MeshStandardMaterial({ color: 0x8b4513 });
+    const brim = new THREE.Mesh(brimGeo, hatMat);
+    brim.position.y = 0.04;
+    hat.add(brim);
+    
+    // Hat top
+    const topGeo = new THREE.CylinderGeometry(0.35, 0.4, 0.5, 16);
+    const top = new THREE.Mesh(topGeo, hatMat);
+    top.position.y = 0.33;
+    hat.add(top);
+    
+    // Ribbon
+    const ribbonGeo = new THREE.CylinderGeometry(0.41, 0.41, 0.1, 16);
+    const ribbonMat = new THREE.MeshStandardMaterial({ color: 0xff6b9d });
+    const ribbon = new THREE.Mesh(ribbonGeo, ribbonMat);
+    ribbon.position.y = 0.15;
+    hat.add(ribbon);
+    
+    // Sparkle effect
+    const sparkleGeo = new THREE.SphereGeometry(0.08, 8, 8);
+    const sparkleMat = new THREE.MeshStandardMaterial({ 
+        color: 0xffd700, 
+        emissive: 0xffd700, 
+        emissiveIntensity: 0.8 
+    });
+    for (let i = 0; i < 5; i++) {
+        const sparkle = new THREE.Mesh(sparkleGeo, sparkleMat);
+        const angle = (i / 5) * Math.PI * 2;
+        sparkle.position.set(Math.cos(angle) * 0.7, 0.3 + Math.sin(i) * 0.2, Math.sin(angle) * 0.7);
+        sparkle.userData = { angle: angle };
+        sparkle.name = 'hatSparkle';
+        hat.add(sparkle);
+    }
+    
+    // Floating animation marker
+    hat.userData.baseY = y;
+    
+    hat.position.set(x, y, z);
+    scene.add(hat);
+    sceneObjects.npcs.push(hat);
 }
 
 function createKnight(x, y, z) {
@@ -845,14 +903,15 @@ function loadScene3() {
     gameState.tsushiCarrying = false;
     tsushiDog = null;
     
-    scene.background = new THREE.Color(0xc44569);
-    scene.fog = new THREE.Fog(0xc44569, 10, 50);
+    // Purple romantic sky
+    scene.background = new THREE.Color(0x4a148c);
+    scene.fog = new THREE.Fog(0x4a148c, 10, 50);
     
-    const ambient = new THREE.AmbientLight(0xff6b9d, 0.6);
+    const ambient = new THREE.AmbientLight(0x9c27b0, 0.6);
     scene.add(ambient);
     sceneObjects.lights.push(ambient);
     
-    const spotlight = new THREE.SpotLight(0xffffff, 1);
+    const spotlight = new THREE.SpotLight(0xe1bee7, 1.2);
     spotlight.position.set(0, 15, 5);
     spotlight.target.position.set(0, 0, -5);
     spotlight.castShadow = true;
@@ -861,7 +920,7 @@ function loadScene3() {
     sceneObjects.lights.push(spotlight);
     
     const groundGeo = new THREE.PlaneGeometry(60, 60);
-    const groundMat = new THREE.MeshStandardMaterial({ color: 0x6a1b4d, roughness: 0.7 });
+    const groundMat = new THREE.MeshStandardMaterial({ color: 0x311b92, roughness: 0.7 });
     const ground = new THREE.Mesh(groundGeo, groundMat);
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
@@ -1114,6 +1173,12 @@ function checkInteraction() {
                 if (scarf) scarf.visible = true;
                 showDialogue("You found the Chelsea Blue Scarf! Now jump across the platforms to reach the Knight!");
             }
+            return;
+        }
+        
+        // Memory Hat interaction - opens photo gallery!
+        if (npc.userData.type === 'memoryHat' && dist < 3) {
+            openPhotoGallery();
             return;
         }
         
@@ -1457,6 +1522,18 @@ function updateAnimations() {
             const scale = 1 + Math.sin(time * 2) * 0.05;
             npc.scale.set(scale, scale, scale);
         }
+        
+        // Animate the memory hat - floating and sparkles
+        if (npc.userData.type === 'memoryHat' && npc.userData.baseY) {
+            npc.position.y = npc.userData.baseY + Math.sin(time * 2) * 0.15;
+            npc.rotation.y = time * 0.5;
+            npc.children.forEach(child => {
+                if (child.name === 'hatSparkle') {
+                    const sparkleTime = time * 3 + child.userData.angle;
+                    child.position.y = 0.3 + Math.sin(sparkleTime) * 0.2;
+                }
+            });
+        }
     });
     
     if (gameState.currentScene === 3) {
@@ -1617,8 +1694,139 @@ function playRomanticMusic() {
     }
 }
 
-// Setup music button
+// ============ PHOTO GALLERY SYSTEM ============
+const photoMemories = [
+    {
+        photo: 'photos/first_date.jpg',
+        text: "Hi Love, honestly from being scared to confront you cause you were so beautiful, to now dating you... everything feels like a fever dream 💜 It feels like I know you since forever."
+    },
+    {
+        photo: 'photos/second_date.jpg',
+        text: "Remember this, I will always be there to protect you and always love you. You are way more special to me than precious metals in this economy 😂 I wish to be your backbone support and see you achieve everything in life. Remember even in this distance, I'm always a call away. Hint: I got the dawg in me 🐕"
+    },
+    {
+        photo: 'photos/third_date.jpg',
+        text: "I mean it when I say us meeting was no less than a miracle. Cause I shall say you have graced me with your presence. You are way more beautiful than these northern lights to me. Yes, I mean even when you have woken up from your sleep 😉"
+    }
+];
+
+let currentPhotoIndex = 0;
+
+function openPhotoGallery() {
+    currentPhotoIndex = 0;
+    const gallery = document.getElementById('photo-gallery');
+    gallery.style.display = 'flex';
+    
+    // Create sparkles
+    const starsContainer = document.getElementById('gallery-stars');
+    starsContainer.innerHTML = '';
+    for (let i = 0; i < 100; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'gallery-sparkle';
+        sparkle.style.left = Math.random() * 100 + '%';
+        sparkle.style.top = Math.random() * 100 + '%';
+        sparkle.style.animationDelay = Math.random() * 2 + 's';
+        sparkle.style.animationDuration = (1 + Math.random() * 2) + 's';
+        starsContainer.appendChild(sparkle);
+    }
+    
+    showPhoto(0);
+    gameState.dialogueActive = true;
+}
+
+function showPhoto(index) {
+    const photo = document.getElementById('gallery-photo');
+    const text = document.getElementById('photo-text');
+    const btn = document.getElementById('next-photo-btn');
+    const container = document.getElementById('photo-container');
+    
+    // Fade out
+    container.style.animation = 'none';
+    container.offsetHeight; // Trigger reflow
+    container.style.animation = 'fadeInUp 1s ease-out';
+    
+    photo.src = photoMemories[index].photo;
+    text.textContent = photoMemories[index].text;
+    
+    if (index >= photoMemories.length - 1) {
+        btn.textContent = 'Close 💕';
+    } else {
+        btn.textContent = 'Next 💕';
+    }
+}
+
+function nextPhoto() {
+    currentPhotoIndex++;
+    if (currentPhotoIndex >= photoMemories.length) {
+        closePhotoGallery();
+    } else {
+        showPhoto(currentPhotoIndex);
+    }
+}
+
+function closePhotoGallery() {
+    document.getElementById('photo-gallery').style.display = 'none';
+    gameState.dialogueActive = false;
+}
+
+// ============ WELCOME SCREEN ============
+function setupWelcomeScreen() {
+    const starsContainer = document.getElementById('welcome-stars');
+    
+    // Create twinkling stars
+    for (let i = 0; i < 100; i++) {
+        const star = document.createElement('div');
+        star.className = 'welcome-star';
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.width = (2 + Math.random() * 3) + 'px';
+        star.style.height = star.style.width;
+        star.style.animationDelay = Math.random() * 2 + 's';
+        starsContainer.appendChild(star);
+    }
+}
+
+function startGame() {
+    document.getElementById('welcome-screen').classList.add('hidden');
+}
+
+// ============ RESTART FUNCTION ============
+function restartGame() {
+    // Reset game state
+    gameState.currentScene = 1;
+    gameState.hasScarf = false;
+    gameState.gameEnded = false;
+    gameState.dialogueActive = false;
+    gameState.currentNPC = null;
+    gameState.calledTsushi = false;
+    gameState.tsushiCarrying = false;
+    gameState.velocityY = 0;
+    gameState.onGround = true;
+    
+    // Hide UI elements
+    document.getElementById('inventory').style.display = 'none';
+    document.getElementById('end-screen').style.display = 'none';
+    document.getElementById('end-screen').innerHTML = '';
+    document.getElementById('dialogue-box').style.display = 'none';
+    
+    // Reload scene 1
+    loadScene1();
+}
+
+// ============ SETUP EVENT LISTENERS ============
 document.getElementById('music-btn').addEventListener('click', toggleMusic);
+document.getElementById('restart-btn').addEventListener('click', restartGame);
+document.getElementById('start-btn').addEventListener('click', startGame);
+document.getElementById('next-photo-btn').addEventListener('click', nextPhoto);
+document.getElementById('welcome-btn').addEventListener('click', showWelcomeMessage);
+
+// Show welcome message again
+function showWelcomeMessage() {
+    document.getElementById('welcome-screen').classList.remove('hidden');
+}
+
+// Setup welcome screen stars
+setupWelcomeScreen();
 
 // Start the game
 init();
@@ -1627,4 +1835,5 @@ console.log("🏰 Leps' Chronicles of WonderCore - 3D Edition");
 console.log("A Valentine's Day Adventure");
 console.log("Controls: WASD to move, SPACE to jump, E to interact");
 console.log("💡 In Scene 2, type 'Tsushi' to call for help!");
-console.log("🎵 Click the music button to play fairytale music!");
+console.log("🎵 Click the music button to play romantic music!");
+console.log("🎩 Find the special hat for memories!");
