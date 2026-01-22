@@ -1253,8 +1253,9 @@ function triggerEnding() {
         </div>
         <div id="final-message" style="display:none;text-align:center;z-index:10;">
             <h1 style="font-size:72px;color:#fff;text-shadow:3px 3px 0 #8b0a50,6px 6px 20px rgba(0,0,0,0.4);margin-bottom:30px;font-style:italic;font-family:Georgia,serif;">💕 Yay! 💕</h1>
-            <p style="font-size:32px;color:#fff5f8;margin-bottom:15px;font-family:Georgia,serif;">Happy Valentine's Day, Leps!</p>
-            <p style="font-size:22px;color:#ffe4ec;margin-bottom:25px;font-style:italic;font-family:Georgia,serif;">You are my greatest adventure and my favorite song.</p>
+            <p style="font-size:32px;color:#fff5f8;margin-bottom:15px;font-family:Georgia,serif;">Happy Advanced Valentine's Day, Leps!</p>
+            <p style="font-size:22px;color:#ffe4ec;margin-bottom:15px;font-style:italic;font-family:Georgia,serif;">Hope I get to meet you 💜</p>
+            <p style="font-size:22px;color:#ffe4ec;margin-bottom:25px;font-style:italic;font-family:Georgia,serif;">Can't wait to spend time with you!</p>
             <p style="font-size:28px;color:#ffd700;text-shadow:2px 2px 15px rgba(255,215,0,0.5);font-weight:bold;font-family:Georgia,serif;animation:pulse 2s ease-in-out infinite;">"I'm still loving you!"</p>
         </div>
         <style>
@@ -1387,6 +1388,13 @@ function updatePlayer() {
             player.position.set(0, 1, 5);
         } else if (gameState.currentScene === 2) {
             player.position.set(0, 1, 5);
+            // Reset Tsushi so she can call him again after falling!
+            gameState.calledTsushi = false;
+            gameState.tsushiCarrying = false;
+            if (tsushiDog) {
+                scene.remove(tsushiDog);
+                tsushiDog = null;
+            }
         }
         gameState.velocityY = 0;
         gameState.onGround = true;
